@@ -42,7 +42,7 @@ RULES: list[Rule] = [
         description="Vietnamese phone number",
         pattern=re.compile(r"(?<!\d)(?:\+84|0)[35789]\d{8}(?!\d)"),
         base_score=0.50,
-        keywords=("sđt","phone","điện thoại ","liên hệ")
+        keywords=("sđt","phone","điện thoại","liên hệ")
     ),
 
     Rule(

@@ -3,6 +3,9 @@ from dlp.rules import RULES
 from dlp.scoring import score
 from pathlib import Path
 from dlp.models import FileFinding
+import logging
+
+logger = logging.getLogger(__name__)
 
 MIN_CONFIDENCE = 0.20
 
@@ -49,6 +52,7 @@ def scan_path(path: Path) -> list[FileFinding]:
         if p.suffix.lower() not in TEXT_SUFFIXES:
             continue
         if p.stat().st_size > MAX_BYTES:
+            logger.warning("Skipped %s: larger than %d bytes", p, MAX_BYTES)
             continue
         results.extend(scan_file(p))
     return results

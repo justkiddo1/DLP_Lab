@@ -21,7 +21,7 @@ def main(argv: list[str] | None = None) -> int:
     path = Path(args.path)
 
     if not path.exists():
-        print("Error: path does not exist : {path}", file=sys.stderr)
+        print(f"Error: path does not exist : {path}", file=sys.stderr)
         return 2
     results = scan_path(path)
     if args.format == "json":
