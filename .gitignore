@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# dữ liệu và kết quả thử nghiệm
+data/bench*/
+out.json
+ketqua.json
