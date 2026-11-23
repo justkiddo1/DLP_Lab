@@ -46,10 +46,10 @@ def card_valid(number: str) -> bool:
 def ssn_valid(value: str) -> bool:
     """Loại các SSN không bao giờ được cấp: area 000/666, group 00, serial 0000.
     Area 9xx (ITIN) vẫn được giữ lại vì cũng là định danh thuế nhạy cảm."""
-    m = re.fullmatch(r"(\d{3}) - (\d{2}) - (\d{4})", value)
+    m = re.fullmatch(r"(\d{3})-(\d{2})-(\d{4})", value)
     if not m :
         return False
-    area, group, serial = m.group()
+    area, group, serial = m.groups()
     return area not in ("000","666") and group != "00" and serial != "0000"
 
 CCCD_PROVINCES = frozenset("""
@@ -62,7 +62,7 @@ CCCD_PROVINCES = frozenset("""
 def cccd_valid(value: str) -> bool:
     return len(value) == 12 and value.isdigit() and value[:3] in CCCD_PROVINCES
 
-_VN_MOBILE = re.compile(r"0(?:3[2-9] | 5[2689] | 7[06-9] | 8[1-9]|9\d)\d{7}")
+_VN_MOBILE = re.compile(r"0(?:3[2-9]|5[2689]|7[06-9]|8[1-9]|9\d)\d{7}")
 
 def vn_phone_valid(value:str) -> bool:
     """Chuẩn hóa +84 -> 0 rồi kiểm tra đầu số di động. Nên đối chiếu bảng đầu số hiện hành."""

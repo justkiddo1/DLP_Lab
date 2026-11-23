@@ -67,7 +67,7 @@ def iter_path(path: Path, exclude: Collection[Path] = ()) -> Iterator[FileFindin
         if p.stat().st_size > MAX_BYTES:
             logger.warning("Skipped %s: larger than %d bytes", p, MAX_BYTES)
             continue
-    yield from iter_file(p)
+        yield from iter_file(p)
 
 def scan_path(path: Path) -> list[FileFinding]:
     return list(iter_path(path))

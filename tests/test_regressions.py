@@ -75,7 +75,7 @@ def test_cli_default_does_not_leak_raw_value(tmp_path, capsys):
     f = tmp_path / "a.txt"
     f.write_text(SSN_LINE, encoding="utf-8")
     main(["file", str(f), "-f", "json"])
-    assert "000-12-3456" not in capsys.readouterr().out
+    assert "123-45-6789" not in capsys.readouterr().out
 
 
 def test_cli_redact_none_shows_raw_value(tmp_path, capsys):
@@ -83,7 +83,7 @@ def test_cli_redact_none_shows_raw_value(tmp_path, capsys):
     f.write_text(SSN_LINE, encoding="utf-8")
     main(["file", str(f), "-f", "json", "--redact", "none"])
     data = json.loads(capsys.readouterr().out)
-    assert data["findings"][0]["value"] == "000-12-3456"
+    assert data["findings"][0]["value"] == "123-45-6789"
 
 
 def test_cli_redact_full_hides_everything(tmp_path, capsys):

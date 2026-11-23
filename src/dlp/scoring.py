@@ -7,7 +7,7 @@ WINDOW = 40
 CONTEXT_BOOST = 0.40
 
 _L = r"(?<![^\W\d_])"
-_R = r"(?<![^\W\d_])"
+_R = r"(?![^\W\d_])"
 
 @lru_cache(maxsize=None)
 def _keyword_re(keywords: tuple[str, ...]) -> re.Pattern[str] | None:
