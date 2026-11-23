@@ -22,6 +22,9 @@ import json
 import random
 import time
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+from dlp.validators import CCCD_PROVINCES
 
 DIGITS = "0123456789"
 
@@ -31,6 +34,9 @@ TEN = ["An", "Binh", "Chi", "Dung", "Hanh", "Huy", "Khanh", "Lan", "Linh",
        "Nam", "Phuc", "Quang", "Trang", "Tuan", "Vy", "Yen"]
 DEPTS = ["Sales", "HR", "IT", "Finance", "Support", "Legal", "Ops"]
 DOMAINS = ["example.com", "example.org", "example.net"]  # tên miền dành riêng, không phải của ai
+PROVINCES = sorted(CCCD_PROVINCES)
+MOBILE_HEADS = ["32","33","34","35","36","37","38","39","56","58","59","70","76","77","78","79",
+                "81","82","83","84","85","86","87","88","89"] + [f"9{d}" for d in "0123456789"]
 
 COUNT_KEYS = [
     "email", "us_ssn", "credit_card", "vn_phone", "vn_cccd",
@@ -78,19 +84,18 @@ def format_card(rng: random.Random, number: str, brand: str) -> str:
     return sep.join(groups)
 
 
-def gen_phone(rng: random.Random) -> str:
-    prefix = rng.choice(["0", "0", "+84"])
-    return prefix + rng.choice("35789") + "".join(rng.choices(DIGITS, k=8))
+def gen_phone(rng):
+    return rng.choice(["0", "0", "+84"]) + rng.choice(MOBILE_HEADS) + "".join(rng.choices(DIGITS, k=7))
 
 
-def gen_cccd(rng: random.Random) -> str:
-    # 3 số tỉnh + 1 số giới tính/thế kỷ + 2 số năm sinh + 6 số ngẫu nhiên = 12 số
-    return f"{rng.randint(1, 96):03d}{rng.randint(0, 3)}{rng.randint(0, 99):02d}{rng.randint(0, 999999):06d}"
+def gen_cccd(rng):
+    return f"{rng.choice(PROVINCES)}{rng.randint(0, 3)}{rng.randint(0, 99):02d}{rng.randint(0, 999999):06d}"
 
 
-def gen_ssn(rng: random.Random) -> str:
-    # vùng 000 không bao giờ được cấp phát cho người thật
-    return f"000-{rng.randint(1, 99):02d}-{rng.randint(1, 9999):04d}"
+def gen_ssn(rng):
+    area = rng.randint(1, 899)
+    area = 667 if area == 666 else area
+    return f"{area:03d}-{rng.randint(1, 99):02d}-{rng.randint(1, 9999):04d}"
 
 
 def gen_email(rng: random.Random, ho: str, ten: str) -> str:

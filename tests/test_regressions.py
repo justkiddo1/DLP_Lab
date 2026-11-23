@@ -17,7 +17,7 @@ def by_rule(text: str, rule_id: str):
     return [f for f in find_in_text(text) if f.rule_id == rule_id]
 
 
-SSN_LINE = "SSN: 000-12-3456\n"
+SSN_LINE = "SSN: 123-45-6789\n"
 
 
 # ============================================================ Nhóm A: bắt lỗi đã tìm thấy
