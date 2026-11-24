@@ -42,3 +42,7 @@ def value_fingerprint(rule_id: str, value: str, key: bytes | None = None) -> str
 def occurrence_id(path: str, line: int, column: int, rule_id : str, value: str, key: bytes | None = None) -> str:
     """Định danh một lần xuất hiện cụ thể; ổn định nếu file không đổi."""
     return _mac(key or get_key(), path, str(line), str(column), rule_id, normalize(rule_id, value))
+
+def key_check(key: bytes | None = None) -> str:
+    """Dấu nhận biết khóa (không lộ khóa): baseline tạo bằng khóa khác sẽ bị từ chối thay vì lặng lẽ không khớp."""
+    return _mac(key or get_key(), "baseline-key-check")[:16]

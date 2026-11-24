@@ -12,10 +12,13 @@ class Rule:
     validator: Callable[[str], bool] | None = None
     keywords: tuple[str, ...] = ()
     validator_boost: float = 0.40
+    # mức nghiêm trọng 0-100 (ECS event.severity); dùng cho --min-severity và SIEM
+    severity: int = 50
 
 RULES: list[Rule] = [
     Rule(
         id ="us_ssn",
+        severity=80,
         description="US Social Security Number",
         pattern=re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)"),
         base_score=0.40,
@@ -26,6 +29,7 @@ RULES: list[Rule] = [
 
     Rule(
         id ="email",
+        severity = 30,
         description="Email",
         pattern=re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"),
         base_score=0.50,
@@ -35,6 +39,7 @@ RULES: list[Rule] = [
 
     Rule(
         id="credit_card",
+        severity=90,
         description="Credit card",
         pattern=re.compile(r"(?<!\d)(?:\d[ -]?){12,15}\d(?!\d)"),
         base_score=0.20,
@@ -44,6 +49,7 @@ RULES: list[Rule] = [
 
     Rule(
         id="vn_phone",
+        severity = 40,
         description="Vietnamese phone number",
         pattern=re.compile(r"(?<!\d)(?:\+84|0)[ .-]?[35789](?:[ .-]?\d){8}(?!\d)"),
         base_score=0.50,
@@ -54,6 +60,7 @@ RULES: list[Rule] = [
 
     Rule(
         id="vn_cccd",
+        severity = 80,
         description="Vietnamese citizen identification card",
         pattern=re.compile(r"(?<!\d)\d{12}(?!\d)"),
         base_score=0.20,

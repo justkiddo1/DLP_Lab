@@ -12,9 +12,13 @@ from dlp.rules import RULES
 SCHEMA_VERSION = "1" # đổi/xóa tên trường -> tăng số này
 ECS_VERSION = "8.11.0"
 # severity số theo kiểu ECS (0-100); rule lạ nhận mặc định.
-SEVERITY = {"credit_card": 90, "us_ssn": 80, "vn_cccd": 80, "vn_phone": 40, "email": 30}
 DEFAULT_SEVERITY = 50
 _RULE_NAMES = {r.id: r.description for r in RULES}
+_RULES_SEVERITY = {r.id: r.severity for r in RULES}
+
+def severity_of(rule_id: str) -> str:
+    """Severity 0-100 của rule (rule lạ nhận mặc định)."""
+    return _RULES_SEVERITY.get(rule_id, DEFAULT_SEVERITY)
 
 def to_dict(ff: FileFinding, redaction: str = "partial") -> dict:
     f = ff.finding
@@ -69,7 +73,7 @@ def to_ecs(ff: FileFinding, redaction:str = "partial", *, ts: str, host: str, ke
             "action": "sensitive-data-match",
             "dataset": "dlp.finding",
             "module": "dlp",
-            "severity": SEVERITY.get(f.rule_id, DEFAULT_SEVERITY),
+            "severity": severity_of(f.rule_id),
         },
         "rule": {"id": f.rule_id, "name": _RULE_NAMES.get(f.rule_id, f.rule_id)},
         "file": {"path": ff.path, "name": p.name, "extension": p.suffix.lstrip(".")},
