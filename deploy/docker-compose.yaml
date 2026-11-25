@@ -37,7 +37,7 @@ services:
       retries: 40
       start_period: 60s
 
-  # Chạy một lần: cài index template và tạo data view trong Kibana.
+  # Chạy một lần: cài index template, nạp dashboard/rule/connector/data view vào Kibana và bật rule.
   setup:
     image: curlimages/curl:8.10.1
     depends_on:
@@ -46,6 +46,7 @@ services:
     volumes:
       - ./setup.sh:/setup.sh:ro
       - ./elasticsearch/dlp-findings-template.json:/template.json:ro
+      - ./kibana/dlp-kibana.ndjson:/dlp-kibana.ndjson:ro
     entrypoint: ["/bin/sh", "/setup.sh"]
     restart: "no"
 
