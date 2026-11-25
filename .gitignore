@@ -7,3 +7,7 @@ __pycache__/
 data/bench*/
 out.json
 ketqua.json
+
+deploy/data/*.jsonl
+deploy/data/summary.json
+*.tmp

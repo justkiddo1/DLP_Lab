@@ -1,0 +1,65 @@
+# Demo cục bộ: Elasticsearch + Kibana + Filebeat đọc deploy/data/*.jsonl do dlp-scan ghi ra.
+# CHỈ DÙNG ĐỂ DEMO: tắt xác thực và chỉ mở cổng trên 127.0.0.1. Cần ~3 GB RAM trống.
+name: dlp-lab
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "127.0.0.1:9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.15.3
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      # khóa mã hóa cho Alerting (chuỗi demo >= 32 ký tự; đổi nếu dùng thật)
+      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=dlp-lab-demo-encryption-key-0123456789
+    ports:
+      - "127.0.0.1:5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:5601/api/status | grep -q '\"level\":\"available\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 40
+      start_period: 60s
+
+  # Chạy một lần: cài index template và tạo data view trong Kibana.
+  setup:
+    image: curlimages/curl:8.10.1
+    depends_on:
+      kibana:
+        condition: service_healthy
+    volumes:
+      - ./setup.sh:/setup.sh:ro
+      - ./elasticsearch/dlp-findings-template.json:/template.json:ro
+    entrypoint: ["/bin/sh", "/setup.sh"]
+    restart: "no"
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.15.3
+    user: root
+    # --strict.perms=false: file cấu hình mount từ Windows không có quyền sở hữu "đúng" nên Filebeat sẽ từ chối nếu bật kiểm tra này
+    command: ["filebeat", "-e", "--strict.perms=false"]
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./data:/data:ro
+
+volumes:
+  esdata:

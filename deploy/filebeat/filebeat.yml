@@ -1,0 +1,37 @@
+# Đọc các file JSONL do `dlp-scan file ... -f jsonl -o deploy/data/out.jsonl` ghi ra.
+filebeat.inputs:
+  - type: filestream
+    id: dlp-findings
+    paths:
+      - /data/*.jsonl
+    # Nhận diện file bằng 64 byte đầu (mặc định 1024 byte sẽ bỏ qua file nhỏ hơn 1 KB).
+    prospector.scanner.fingerprint.enabled: true
+    prospector.scanner.fingerprint.offset: 0
+    prospector.scanner.fingerprint.length: 64
+    file_identity.fingerprint: ~
+    parsers:
+      - ndjson:
+          target: ""            # đặt các trường JSON thẳng ở gốc document (đã theo ECS)
+          overwrite_keys: true  # cho phép @timestamp trong JSON thay giá trị Filebeat tự đặt
+          add_error_key: true
+
+processors:
+  # event.id của dlp-scan làm _id của document: quét/nạp lại cùng một file không sinh bản trùng.
+  - copy_fields:
+      fields:
+        - from: event.id
+          to: "@metadata._id"
+      fail_on_error: false
+      ignore_missing: true
+
+# Template do deploy/setup.sh cài; ghi vào một index cố định thay vì data stream mặc định của Filebeat.
+setup.ilm.enabled: false
+setup.template.enabled: false
+setup.template.name: "dlp-findings"
+setup.template.pattern: "dlp-findings*"
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  index: "dlp-findings"
+
+logging.level: info

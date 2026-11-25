@@ -1,0 +1,51 @@
+{
+  "index_patterns": ["dlp-findings*"],
+  "priority": 200,
+  "template": {
+    "settings": { "number_of_shards": 1, "number_of_replicas": 0 },
+    "mappings": {
+      "properties": {
+        "@timestamp": { "type": "date" },
+        "ecs": { "properties": { "version": { "type": "keyword" } } },
+        "event": {
+          "properties": {
+            "id": { "type": "keyword" },
+            "kind": { "type": "keyword" },
+            "category": { "type": "keyword" },
+            "type": { "type": "keyword" },
+            "action": { "type": "keyword" },
+            "dataset": { "type": "keyword" },
+            "module": { "type": "keyword" },
+            "severity": { "type": "long" }
+          }
+        },
+        "rule": {
+          "properties": {
+            "id": { "type": "keyword" },
+            "name": { "type": "keyword" }
+          }
+        },
+        "file": {
+          "properties": {
+            "path": { "type": "keyword" },
+            "name": { "type": "keyword" },
+            "extension": { "type": "keyword" }
+          }
+        },
+        "host": { "properties": { "name": { "type": "keyword" } } },
+        "dlp": {
+          "properties": {
+            "schema_version": { "type": "keyword" },
+            "line": { "type": "integer" },
+            "column": { "type": "integer" },
+            "match_length": { "type": "integer" },
+            "confidence": { "type": "float" },
+            "value": { "type": "keyword" },
+            "redaction": { "type": "keyword" },
+            "fingerprint": { "type": "keyword" }
+          }
+        }
+      }
+    }
+  }
+}
