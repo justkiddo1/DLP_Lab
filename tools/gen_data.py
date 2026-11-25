@@ -179,7 +179,7 @@ def csv_row(rng: random.Random, i: int, counts: dict[str, int]) -> str:
         note = f"order {number}"
         counts["trap_card_bad_luhn"] += 1
     elif r < 0.08:    # mã vận đơn 12 số: scanner hiện tại sẽ báo nhầm là CCCD (điểm thấp)
-        note = f"tracking {gen_digits(rng, 12)}"
+        note = f"tracking 9{gen_digits(rng, 11)}"   # đầu 9xx: mã tỉnh không hợp lệ -> không được báo là CCCD
         counts["trap_digits12"] += 1
     elif r < 0.10:    # số quá ngắn/quá dài: không được báo
         note = f"ref {gen_digits(rng, rng.choice([9, 11]))}"
@@ -232,7 +232,7 @@ def log_line(rng: random.Random, stamp: str, counts: dict[str, int], pii_ratio: 
         counts["trap_card_bad_luhn"] += 1
         return f"{stamp} INFO order {number} shipped"
     counts["trap_digits12"] += 1
-    return f"{stamp} INFO tracking {gen_digits(rng, 12)} in transit"
+    return f"{stamp} INFO tracking 9{gen_digits(rng, 11)} in transit"
 
 
 # ---------------------------------------------------------------- chương trình chính
@@ -272,8 +272,8 @@ def main() -> None:
         "us_ssn": counts["us_ssn"],
         "credit_card": counts["credit_card"],
         "vn_phone": counts["vn_phone"],
-        # mã vận đơn 12 số cũng khớp CCCD (điểm 0.20 = đúng ngưỡng) nên scanner hiện tại sẽ báo
-        "vn_cccd": counts["vn_cccd"] + counts["trap_digits12"],
+        # mã vận đơn 12 số bắt đầu bằng 9 có mã tỉnh không hợp lệ nên KHÔNG được báo
+        "vn_cccd": counts["vn_cccd"],
     }
     manifest = {
         "params": {"rows": args.rows, "log_lines": args.log_lines, "seed": args.seed,
@@ -282,7 +282,7 @@ def main() -> None:
         "total_bytes": csv_w.total_bytes + log_w.total_bytes,
         "planted": counts,
         "expected_findings_with_current_rules": expected,
-        "note": ("vn_cccd bao gồm cả mã vận đơn 12 số (trap_digits12). "
+        "note": ("trap_digits12 (mã vận đơn 12 số bắt đầu bằng 9) KHÔNG được xuất hiện trong kết quả. "
                  "Nếu bạn đổi base_score/ngưỡng của CCCD thì con số này sẽ lệch, đó là bình thường. "
                  "trap_card_bad_luhn và trap_short KHÔNG được xuất hiện trong kết quả."),
     }
